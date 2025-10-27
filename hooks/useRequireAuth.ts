@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSupabase } from './useSupabase'
+import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
 
 /**
@@ -12,7 +12,7 @@ import { User } from '@supabase/supabase-js'
  */
 export function useRequireAuth() {
   const router = useRouter()
-  const supabase = useSupabase()
+  const supabase = useMemo(() => createClient(), [])
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 

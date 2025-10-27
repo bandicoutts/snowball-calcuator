@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useSupabase } from '@/hooks/useSupabase'
+import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast'
 
 export default function Navbar() {
   const router = useRouter()
-  const supabase = useSupabase()
+  const supabase = useMemo(() => createClient(), [])
   const { showSuccess, showError } = useToast()
   const [loggingOut, setLoggingOut] = useState(false)
 

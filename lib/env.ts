@@ -34,7 +34,14 @@ export function validateEnv(): Env {
 }
 
 /**
- * Get validated environment variables
- * Call this once at app startup to ensure env is valid
+ * Get validated environment variables (lazy evaluation)
+ * Validates on first access to avoid build-time issues
  */
-export const env = validateEnv()
+let _env: Env | null = null
+
+export function getEnv(): Env {
+  if (!_env) {
+    _env = validateEnv()
+  }
+  return _env
+}

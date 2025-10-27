@@ -35,10 +35,6 @@ export const CHART_HEIGHT = {
   TOTAL_DEBT: 300,
 } as const
 
-// Number formatting settings
-export const CURRENCY_DECIMALS = 2
-export const PERCENT_DECIMALS = 2
-
 // Calculation constants
 export const MONTHS_PER_YEAR = 12
 export const MAX_PAYOFF_MONTHS = 1200 // 100 years max (safety limit)

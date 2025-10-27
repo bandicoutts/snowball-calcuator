@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSupabase } from '@/hooks/useSupabase'
+import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast'
 import Navbar from '@/components/ui/Navbar'
 import { sanitizeInput } from '@/lib/validation'
@@ -22,7 +22,7 @@ interface UserSettings {
 
 export default function DebtsPage() {
   const router = useRouter()
-  const supabase = useSupabase()
+  const supabase = useMemo(() => createClient(), [])
   const { showSuccess, showError } = useToast()
   const [debts, setDebts] = useState<Debt[]>([])
   const [settings, setSettings] = useState<UserSettings>({ extra_payment: 0 })

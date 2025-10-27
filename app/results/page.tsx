@@ -70,13 +70,13 @@ export default function ResultsPage() {
     loadDataAndCalculate()
   }, [loadDataAndCalculate])
 
-  const handleMethodToggle = useCallback((method: 'snowball' | 'avalanche') => {
+  const handleMethodToggle = (method: 'snowball' | 'avalanche') => {
     setActiveMethod(method)
-  }, [])
+  }
 
-  const handleTogglePaymentTable = useCallback(() => {
+  const handleTogglePaymentTable = () => {
     setShowPaymentTable(prev => !prev)
-  }, [])
+  }
 
   if (loading) {
     return (
