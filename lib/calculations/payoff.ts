@@ -1,17 +1,77 @@
 import { Debt, MonthlyPayment, PayoffStrategy, CalculationResult } from '@/types/debt.types'
 
 /**
- * Calculate monthly interest payment for a debt
+ * Validate a single debt object
+ */
+function validateDebt(debt: Debt): void {
+  if (!debt.id || typeof debt.id !== 'string') {
+    throw new Error('Invalid debt ID')
+  }
+  if (!debt.name || debt.name.trim().length === 0) {
+    throw new Error('Debt name is required')
+  }
+  if (!Number.isFinite(debt.balance) || debt.balance < 0) {
+    throw new Error(`Invalid balance for ${debt.name}: must be a positive finite number`)
+  }
+  if (!Number.isFinite(debt.minimum_payment) || debt.minimum_payment < 0) {
+    throw new Error(`Invalid minimum payment for ${debt.name}: must be a positive finite number`)
+  }
+  if (!Number.isFinite(debt.apr) || debt.apr < 0 || debt.apr > 100) {
+    throw new Error(`Invalid APR for ${debt.name}: must be between 0 and 100`)
+  }
+  // Warn if minimum payment seems unusually high
+  if (debt.minimum_payment > debt.balance * 1.5) {
+    console.warn(`Warning: Minimum payment for ${debt.name} is unusually high relative to balance`)
+  }
+}
+
+/**
+ * Calculate monthly interest payment for a debt with validation
  */
 function calculateMonthlyInterest(balance: number, apr: number): number {
+  if (!Number.isFinite(balance) || balance < 0) {
+    throw new Error('Balance must be a positive finite number')
+  }
+  if (!Number.isFinite(apr) || apr < 0 || apr > 100) {
+    throw new Error('APR must be between 0 and 100')
+  }
+
   const monthlyRate = apr / 100 / 12
-  return balance * monthlyRate
+  const interest = balance * monthlyRate
+
+  if (!Number.isFinite(interest)) {
+    throw new Error('Interest calculation resulted in invalid value')
+  }
+
+  return interest
 }
 
 /**
  * Calculate debt payoff using the snowball method (smallest balance first)
  */
 export function calculateSnowball(debts: Debt[], extraPayment: number): PayoffStrategy {
+  // Validate inputs
+  if (!Array.isArray(debts)) {
+    throw new Error('Debts must be an array')
+  }
+
+  // Handle empty debts array
+  if (debts.length === 0) {
+    return {
+      method: 'snowball',
+      monthlyPayments: [],
+      totalInterestPaid: 0,
+      monthsToPayoff: 0,
+      debtPayments: [],
+    }
+  }
+
+  debts.forEach(validateDebt)
+
+  if (!Number.isFinite(extraPayment) || extraPayment < 0) {
+    throw new Error('Extra payment must be a positive finite number')
+  }
+
   // Sort debts by balance (smallest first) for snowball method
   const sortedDebts = [...debts].sort((a, b) => a.balance - b.balance)
 
@@ -22,6 +82,28 @@ export function calculateSnowball(debts: Debt[], extraPayment: number): PayoffSt
  * Calculate debt payoff using the avalanche method (highest APR first)
  */
 export function calculateAvalanche(debts: Debt[], extraPayment: number): PayoffStrategy {
+  // Validate inputs
+  if (!Array.isArray(debts)) {
+    throw new Error('Debts must be an array')
+  }
+
+  // Handle empty debts array
+  if (debts.length === 0) {
+    return {
+      method: 'avalanche',
+      monthlyPayments: [],
+      totalInterestPaid: 0,
+      monthsToPayoff: 0,
+      debtPayments: [],
+    }
+  }
+
+  debts.forEach(validateDebt)
+
+  if (!Number.isFinite(extraPayment) || extraPayment < 0) {
+    throw new Error('Extra payment must be a positive finite number')
+  }
+
   // Sort debts by APR (highest first) for avalanche method
   const sortedDebts = [...debts].sort((a, b) => b.apr - a.apr)
 

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { validatePassword, validateEmail } from '@/lib/validation'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -16,13 +17,22 @@ export default function SignupPage() {
     e.preventDefault()
     setError(null)
 
-    if (password !== confirmPassword) {
-      setError('Passwords do not match')
+    // Validate email
+    const emailValidation = validateEmail(email)
+    if (!emailValidation.valid) {
+      setError(emailValidation.error!)
       return
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+    // Validate password
+    const passwordValidation = validatePassword(password)
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.error!)
+      return
+    }
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
       return
     }
 
@@ -34,7 +44,7 @@ export default function SignupPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/dashboard`,
       },
     })
 
@@ -86,8 +96,18 @@ export default function SignupPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-colors text-gray-900"
-              placeholder="At least 6 characters"
+              placeholder="Create a strong password"
             />
+            <div className="mt-2 text-xs text-gray-600">
+              <p className="font-medium mb-1">Password must contain:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>At least 12 characters</li>
+                <li>One uppercase letter</li>
+                <li>One lowercase letter</li>
+                <li>One number</li>
+                <li>One special character</li>
+              </ul>
+            </div>
           </div>
 
           <div>
