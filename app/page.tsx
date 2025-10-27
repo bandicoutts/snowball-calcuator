@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -9,18 +11,18 @@ export default function Home() {
           Take control of your debt with smart payoff strategies
         </p>
         <div className="space-x-4">
-          <a
+          <Link
             href="/login"
             className="inline-block px-6 py-3 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
           >
             Login
-          </a>
-          <a
+          </Link>
+          <Link
             href="/signup"
             className="inline-block px-6 py-3 bg-white text-indigo-600 font-medium rounded-lg border-2 border-indigo-600 hover:bg-indigo-50 transition-colors"
           >
             Sign Up
-          </a>
+          </Link>
         </div>
       </div>
     </div>

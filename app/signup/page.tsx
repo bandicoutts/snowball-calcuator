@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { validatePassword, validateEmail } from '@/lib/validation'
+import { PASSWORD_REQUIREMENTS } from '@/lib/constants'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -101,7 +103,7 @@ export default function SignupPage() {
             <div className="mt-2 text-xs text-gray-600">
               <p className="font-medium mb-1">Password must contain:</p>
               <ul className="list-disc list-inside space-y-0.5">
-                <li>At least 12 characters</li>
+                <li>At least {PASSWORD_REQUIREMENTS.MIN_LENGTH} characters</li>
                 <li>One uppercase letter</li>
                 <li>One lowercase letter</li>
                 <li>One number</li>
@@ -136,9 +138,9 @@ export default function SignupPage() {
 
         <p className="mt-6 text-center text-gray-600">
           Already have an account?{' '}
-          <a href="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
+          <Link href="/login" className="text-indigo-600 hover:text-indigo-700 font-medium">
             Log in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

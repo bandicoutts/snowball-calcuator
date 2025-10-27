@@ -1,16 +1,35 @@
 'use client'
 
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import Link from 'next/link'
+import { useSupabase } from '@/hooks/useSupabase'
+import { useToast } from '@/components/Toast'
 
 export default function Navbar() {
   const router = useRouter()
+  const supabase = useSupabase()
+  const { showSuccess, showError } = useToast()
+  const [loggingOut, setLoggingOut] = useState(false)
 
   const handleLogout = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
-    router.refresh()
+    try {
+      setLoggingOut(true)
+      const { error } = await supabase.auth.signOut()
+
+      if (error) {
+        showError('Failed to log out. Please try again.')
+        return
+      }
+
+      showSuccess('Successfully logged out')
+      router.push('/')
+      router.refresh()
+    } catch (err) {
+      showError('An unexpected error occurred')
+    } finally {
+      setLoggingOut(false)
+    }
   }
 
   return (
@@ -18,35 +37,36 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
-            <a href="/dashboard" className="text-xl font-bold text-indigo-600">
+            <Link href="/dashboard" className="text-xl font-bold text-indigo-600">
               Snowball Calculator
-            </a>
+            </Link>
             <div className="hidden md:flex space-x-4">
-              <a
+              <Link
                 href="/dashboard"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Dashboard
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/debts"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Manage Debts
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/results"
                 className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Results
-              </a>
+              </Link>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="text-gray-700 hover:text-red-600 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+            disabled={loggingOut}
+            className="text-gray-700 hover:text-red-600 px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Logout
+            {loggingOut ? 'Logging out...' : 'Logout'}
           </button>
         </div>
       </div>

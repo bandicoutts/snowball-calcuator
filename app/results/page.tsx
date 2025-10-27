@@ -1,13 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import Navbar from '@/components/ui/Navbar'
 import DebtPayoffChart from '@/components/charts/DebtPayoffChart'
 import TotalDebtChart from '@/components/charts/TotalDebtChart'
 import { calculatePayoffComparison } from '@/lib/calculations/payoff'
 import { CalculationResult, Debt, MonthlyPayment } from '@/types/debt.types'
+import { formatCurrency } from '@/lib/formatters'
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -16,13 +18,9 @@ export default function ResultsPage() {
   const [activeMethod, setActiveMethod] = useState<'snowball' | 'avalanche'>('snowball')
   const [showPaymentTable, setShowPaymentTable] = useState(false)
 
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
-  useEffect(() => {
-    loadDataAndCalculate()
-  }, [])
-
-  const loadDataAndCalculate = async () => {
+  const loadDataAndCalculate = useCallback(async () => {
     setLoading(true)
 
     const {
@@ -66,7 +64,19 @@ export default function ResultsPage() {
     const calculationResults = calculatePayoffComparison(debts, extraPayment)
     setResults(calculationResults)
     setLoading(false)
-  }
+  }, [router, supabase])
+
+  useEffect(() => {
+    loadDataAndCalculate()
+  }, [loadDataAndCalculate])
+
+  const handleMethodToggle = useCallback((method: 'snowball' | 'avalanche') => {
+    setActiveMethod(method)
+  }, [])
+
+  const handleTogglePaymentTable = useCallback(() => {
+    setShowPaymentTable(prev => !prev)
+  }, [])
 
   if (loading) {
     return (
@@ -89,12 +99,12 @@ export default function ResultsPage() {
             <p className="text-gray-600 mb-6">
               Add some debts first to see your payoff strategy.
             </p>
-            <a
+            <Link
               href="/debts"
               className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
             >
               Add Debts
-            </a>
+            </Link>
           </div>
         </main>
       </div>
@@ -120,7 +130,7 @@ export default function ResultsPage() {
         {/* Method Toggle */}
         <div className="bg-white rounded-lg shadow p-2 mb-6 inline-flex">
           <button
-            onClick={() => setActiveMethod('snowball')}
+            onClick={() => handleMethodToggle('snowball')}
             className={`px-6 py-2 rounded-md font-medium transition-colors ${
               activeMethod === 'snowball'
                 ? 'bg-indigo-600 text-white'
@@ -130,7 +140,7 @@ export default function ResultsPage() {
             Snowball Method
           </button>
           <button
-            onClick={() => setActiveMethod('avalanche')}
+            onClick={() => handleMethodToggle('avalanche')}
             className={`px-6 py-2 rounded-md font-medium transition-colors ${
               activeMethod === 'avalanche'
                 ? 'bg-indigo-600 text-white'
@@ -157,14 +167,14 @@ export default function ResultsPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-sm font-medium text-gray-600">Total Interest Paid</div>
             <div className="text-3xl font-bold text-gray-900 mt-2">
-              ${activeStrategy.totalInterestPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(activeStrategy.totalInterestPaid)}
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-sm font-medium text-gray-600">Extra Monthly Payment</div>
             <div className="text-3xl font-bold text-gray-900 mt-2">
-              ${results.extraPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(results.extraPayment)}
             </div>
           </div>
         </div>
@@ -181,8 +191,7 @@ export default function ResultsPage() {
                   <span className="font-medium">Payoff Time:</span> {results.snowball.monthsToPayoff} months
                 </li>
                 <li>
-                  <span className="font-medium">Total Interest:</span> $
-                  {results.snowball.totalInterestPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <span className="font-medium">Total Interest:</span> {formatCurrency(results.snowball.totalInterestPaid)}
                 </li>
               </ul>
             </div>
@@ -195,8 +204,7 @@ export default function ResultsPage() {
                   <span className="font-medium">Payoff Time:</span> {results.avalanche.monthsToPayoff} months
                 </li>
                 <li>
-                  <span className="font-medium">Total Interest:</span> $
-                  {results.avalanche.totalInterestPaid.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <span className="font-medium">Total Interest:</span> {formatCurrency(results.avalanche.totalInterestPaid)}
                 </li>
               </ul>
             </div>
@@ -207,14 +215,12 @@ export default function ResultsPage() {
               <p className="text-sm font-medium text-gray-900">
                 {interestSavings > 0 ? (
                   <>
-                    💰 The avalanche method saves you $
-                    {Math.abs(interestSavings).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} in interest
+                    💰 The avalanche method saves you {formatCurrency(Math.abs(interestSavings))} in interest
                     {timeSavings > 0 && ` and ${timeSavings} months`}!
                   </>
                 ) : (
                   <>
-                    The snowball method costs $
-                    {Math.abs(interestSavings).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} more but may provide better motivation.
+                    The snowball method costs {formatCurrency(Math.abs(interestSavings))} more but may provide better motivation.
                   </>
                 )}
               </p>
@@ -232,7 +238,7 @@ export default function ResultsPage() {
               <div key={payment.debtId} className="border border-gray-200 rounded-lg p-4">
                 <div className="font-medium text-gray-900">{payment.debtName}</div>
                 <div className="text-2xl font-bold text-indigo-600 mt-2">
-                  ${payment.monthlyPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {formatCurrency(payment.monthlyPayment)}
                 </div>
                 <div className="text-sm text-gray-500">per month</div>
               </div>
@@ -260,7 +266,7 @@ export default function ResultsPage() {
           <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
             <h2 className="text-xl font-semibold text-gray-900">Monthly Payment Schedule</h2>
             <button
-              onClick={() => setShowPaymentTable(!showPaymentTable)}
+              onClick={handleTogglePaymentTable}
               className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
             >
               {showPaymentTable ? 'Hide Table' : 'Show Table'}
@@ -302,16 +308,16 @@ export default function ResultsPage() {
                         {payment.debtName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${payment.payment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(payment.payment)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${payment.principal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(payment.principal)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${payment.interest.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(payment.interest)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${payment.remainingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(payment.remainingBalance)}
                       </td>
                     </tr>
                   ))}

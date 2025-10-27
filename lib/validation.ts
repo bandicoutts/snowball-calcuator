@@ -1,3 +1,17 @@
+import { PASSWORD_REQUIREMENTS } from './constants'
+
+/**
+ * Sanitize user input to prevent XSS attacks
+ * Uses simple sanitization that works in both server and client
+ */
+export function sanitizeInput(input: string): string {
+  // Remove HTML tags and trim whitespace
+  return input
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/[<>'"]/g, '') // Remove potentially dangerous characters
+    .trim()
+}
+
 /**
  * Password validation utility
  */
@@ -7,8 +21,8 @@ export interface PasswordValidationResult {
 }
 
 export function validatePassword(password: string): PasswordValidationResult {
-  if (password.length < 12) {
-    return { valid: false, error: 'Password must be at least 12 characters' }
+  if (password.length < PASSWORD_REQUIREMENTS.MIN_LENGTH) {
+    return { valid: false, error: `Password must be at least ${PASSWORD_REQUIREMENTS.MIN_LENGTH} characters` }
   }
 
   if (!/[a-z]/.test(password)) {

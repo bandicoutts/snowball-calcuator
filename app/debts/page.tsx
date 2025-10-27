@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { useSupabase } from '@/hooks/useSupabase'
+import { useToast } from '@/components/Toast'
 import Navbar from '@/components/ui/Navbar'
+import { sanitizeInput } from '@/lib/validation'
+import { formatCurrency, formatPercent } from '@/lib/formatters'
 
 interface Debt {
   id: string
@@ -19,12 +22,16 @@ interface UserSettings {
 
 export default function DebtsPage() {
   const router = useRouter()
+  const supabase = useSupabase()
+  const { showSuccess, showError } = useToast()
   const [debts, setDebts] = useState<Debt[]>([])
   const [settings, setSettings] = useState<UserSettings>({ extra_payment: 0 })
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [savingExtra, setSavingExtra] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   // Form state
   const [formData, setFormData] = useState({
@@ -35,8 +42,6 @@ export default function DebtsPage() {
   })
 
   const [extraPayment, setExtraPayment] = useState('')
-
-  const supabase = createClient()
 
   useEffect(() => {
     loadData()
@@ -103,7 +108,7 @@ export default function DebtsPage() {
 
     const debtData = {
       user_id: user.id,
-      name: formData.name,
+      name: sanitizeInput(formData.name),
       balance: parseFloat(formData.balance),
       minimum_payment: parseFloat(formData.minimum_payment),
       apr: parseFloat(formData.apr),
@@ -148,25 +153,37 @@ export default function DebtsPage() {
     setShowForm(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this debt?')) return
+  const handleDelete = async (id: string, debtName: string) => {
+    const confirmed = window.confirm(`Are you sure you want to delete "${debtName}"? This action cannot be undone.`)
+    if (!confirmed) return
+
+    setDeletingId(id)
 
     const { error } = await supabase.from('debts').delete().eq('id', id)
 
     if (error) {
-      setError(error.message)
+      showError(`Failed to delete debt: ${error.message}`)
+      setDeletingId(null)
       return
     }
 
+    showSuccess('Debt deleted successfully')
+    setDeletingId(null)
     loadData()
   }
 
   const handleExtraPaymentUpdate = async () => {
+    setSavingExtra(true)
+
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    if (!user) return
+    if (!user) {
+      showError('You must be logged in')
+      setSavingExtra(false)
+      return
+    }
 
     const { error } = await supabase
       .from('user_settings')
@@ -174,12 +191,14 @@ export default function DebtsPage() {
       .eq('user_id', user.id)
 
     if (error) {
-      setError(error.message)
+      showError(`Failed to save: ${error.message}`)
+      setSavingExtra(false)
       return
     }
 
     setSettings({ extra_payment: parseFloat(extraPayment) || 0 })
-    alert('Extra payment updated successfully!')
+    showSuccess('Extra payment updated successfully!')
+    setSavingExtra(false)
   }
 
   const handleCancelForm = () => {
@@ -247,9 +266,10 @@ export default function DebtsPage() {
             </div>
             <button
               onClick={handleExtraPaymentUpdate}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+              disabled={savingExtra}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Save
+              {savingExtra ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>
@@ -380,26 +400,28 @@ export default function DebtsPage() {
                         {debt.name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${debt.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(debt.balance)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${debt.minimum_payment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(debt.minimum_payment)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {debt.apr.toFixed(2)}%
+                        {formatPercent(debt.apr)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-4">
                         <button
                           onClick={() => handleEdit(debt)}
-                          className="text-indigo-600 hover:text-indigo-900"
+                          disabled={deletingId === debt.id}
+                          className="text-indigo-600 hover:text-indigo-900 disabled:opacity-50"
                         >
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDelete(debt.id)}
-                          className="text-red-600 hover:text-red-900"
+                          onClick={() => handleDelete(debt.id, debt.name)}
+                          disabled={deletingId !== null}
+                          className="text-red-600 hover:text-red-900 disabled:opacity-50"
                         >
-                          Delete
+                          {deletingId === debt.id ? 'Deleting...' : 'Delete'}
                         </button>
                       </td>
                     </tr>

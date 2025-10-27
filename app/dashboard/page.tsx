@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import Navbar from '@/components/ui/Navbar'
+import { formatCurrency, formatPercent } from '@/lib/formatters'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -44,7 +46,7 @@ export default async function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-sm font-medium text-gray-600">Total Debt</div>
             <div className="text-3xl font-bold text-gray-900 mt-2">
-              ${totalDebt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totalDebt)}
             </div>
           </div>
 
@@ -56,7 +58,7 @@ export default async function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="text-sm font-medium text-gray-600">Minimum Monthly Payment</div>
             <div className="text-3xl font-bold text-gray-900 mt-2">
-              ${totalMinimumPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(totalMinimumPayment)}
             </div>
           </div>
         </div>
@@ -67,12 +69,12 @@ export default async function DashboardPage() {
             <p className="text-gray-600 mb-6">
               Get started by adding your debts to see your payoff strategy.
             </p>
-            <a
+            <Link
               href="/debts"
               className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
             >
               Add Your First Debt
-            </a>
+            </Link>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -104,13 +106,13 @@ export default async function DashboardPage() {
                         {debt.name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${Number(debt.balance).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(Number(debt.balance))}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        {Number(debt.apr).toFixed(2)}%
+                        {formatPercent(Number(debt.apr))}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                        ${Number(debt.minimum_payment).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(Number(debt.minimum_payment))}
                       </td>
                     </tr>
                   ))}
@@ -118,18 +120,18 @@ export default async function DashboardPage() {
               </table>
             </div>
             <div className="px-6 py-4 bg-gray-50 flex justify-between items-center">
-              <a
+              <Link
                 href="/debts"
                 className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
               >
                 Manage Debts
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/results"
                 className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors text-sm"
               >
                 View Payoff Strategy
-              </a>
+              </Link>
             </div>
           </div>
         )}
