@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import Navbar from '@/components/ui/Navbar'
+import DebtMethodInfo from '@/components/DebtMethodInfo'
 import DebtPayoffChart from '@/components/charts/DebtPayoffChart'
 import TotalDebtChart from '@/components/charts/TotalDebtChart'
 import { calculatePayoffComparison } from '@/lib/calculations/payoff'
 import { CalculationResult, Debt, MonthlyPayment } from '@/types/debt.types'
 import { formatCurrency } from '@/lib/formatters'
+import { Info, TrendingDown, Calculator, Clock, DollarSign } from 'lucide-react'
 
 export default function ResultsPage() {
   const router = useRouter()
@@ -17,6 +19,7 @@ export default function ResultsPage() {
   const [results, setResults] = useState<CalculationResult | null>(null)
   const [activeMethod, setActiveMethod] = useState<'snowball' | 'avalanche'>('snowball')
   const [showPaymentTable, setShowPaymentTable] = useState(false)
+  const [showMethodInfo, setShowMethodInfo] = useState(false)
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -116,65 +119,99 @@ export default function ResultsPage() {
   const timeSavings = results.snowball.monthsToPayoff - results.avalanche.monthsToPayoff
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
       <Navbar />
+
+      <DebtMethodInfo isOpen={showMethodInfo} onClose={() => setShowMethodInfo(false)} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Payoff Strategy Results</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Payoff Strategy Results</h1>
+          <p className="text-lg text-gray-600">
             Compare snowball and avalanche methods to find the best strategy for you.
           </p>
         </div>
 
         {/* Method Toggle */}
-        <div className="bg-white rounded-lg shadow p-2 mb-6 inline-flex">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+          <div className="bg-white rounded-xl shadow-md p-2 inline-flex">
+            <button
+              onClick={() => handleMethodToggle('snowball')}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+                activeMethod === 'snowball'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <TrendingDown className="h-4 w-4" />
+              <span>Snowball</span>
+            </button>
+            <button
+              onClick={() => handleMethodToggle('avalanche')}
+              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+                activeMethod === 'avalanche'
+                  ? 'bg-indigo-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Calculator className="h-4 w-4" />
+              <span>Avalanche</span>
+            </button>
+          </div>
           <button
-            onClick={() => handleMethodToggle('snowball')}
-            className={`px-6 py-2 rounded-md font-medium transition-colors ${
-              activeMethod === 'snowball'
-                ? 'bg-indigo-600 text-white'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
+            onClick={() => setShowMethodInfo(true)}
+            className="flex items-center text-indigo-600 hover:text-indigo-700 font-medium text-sm"
           >
-            Snowball Method
-          </button>
-          <button
-            onClick={() => handleMethodToggle('avalanche')}
-            className={`px-6 py-2 rounded-md font-medium transition-colors ${
-              activeMethod === 'avalanche'
-                ? 'bg-indigo-600 text-white'
-                : 'text-gray-700 hover:bg-gray-100'
-            }`}
-          >
-            Avalanche Method
+            <Info className="h-4 w-4 mr-1" />
+            Learn about these methods
           </button>
         </div>
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-sm font-medium text-gray-600">Months to Payoff</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">
-              {activeStrategy.monthsToPayoff}
-            </div>
-            <div className="text-sm text-gray-500 mt-1">
-              ({Math.floor(activeStrategy.monthsToPayoff / 12)} years{' '}
-              {activeStrategy.monthsToPayoff % 12} months)
+          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-gray-600 mb-1">Months to Payoff</div>
+                <div className="text-3xl font-bold text-gray-900">
+                  {activeStrategy.monthsToPayoff}
+                </div>
+                <div className="text-sm text-gray-500 mt-1">
+                  ({Math.floor(activeStrategy.monthsToPayoff / 12)} years{' '}
+                  {activeStrategy.monthsToPayoff % 12} months)
+                </div>
+              </div>
+              <div className="bg-blue-100 rounded-full p-3">
+                <Clock className="h-8 w-8 text-blue-600" />
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-sm font-medium text-gray-600">Total Interest Paid</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">
-              {formatCurrency(activeStrategy.totalInterestPaid)}
+          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-gray-600 mb-1">Total Interest Paid</div>
+                <div className="text-3xl font-bold text-gray-900">
+                  {formatCurrency(activeStrategy.totalInterestPaid)}
+                </div>
+              </div>
+              <div className="bg-red-100 rounded-full p-3">
+                <DollarSign className="h-8 w-8 text-red-600" />
+              </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-6">
-            <div className="text-sm font-medium text-gray-600">Extra Monthly Payment</div>
-            <div className="text-3xl font-bold text-gray-900 mt-2">
-              {formatCurrency(results.extraPayment)}
+          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm font-medium text-gray-600 mb-1">Extra Monthly Payment</div>
+                <div className="text-3xl font-bold text-gray-900">
+                  {formatCurrency(results.extraPayment)}
+                </div>
+              </div>
+              <div className="bg-green-100 rounded-full p-3">
+                <DollarSign className="h-8 w-8 text-green-600" />
+              </div>
             </div>
           </div>
         </div>

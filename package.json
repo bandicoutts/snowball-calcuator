@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/bandicoutts/snowball-calcuator#readme",
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "@hookform/resolvers": "^5.2.2",
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.76.1",
@@ -29,6 +30,7 @@
     "@types/react-dom": "^19.2.2",
     "autoprefixer": "^10.4.21",
     "isomorphic-dompurify": "^2.30.0",
+    "lucide-react": "^0.548.0",
     "next": "^16.0.0",
     "postcss": "^8.5.6",
     "react": "^19.2.0",
