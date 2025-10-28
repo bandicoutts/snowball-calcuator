@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ToastProvider } from "@/components/Toast";
-import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Snowball Debt Calculator",
-  description: "Calculate your debt payoff strategy using snowball and avalanche methods",
+  description: "Eliminate debt faster with smart payoff strategies. Visualize your path to financial freedom.",
 };
 
 export default function RootLayout({
@@ -15,15 +14,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className="font-sans antialiased">
-        <ThemeProvider defaultTheme="system" storageKey="snowball-theme">
-          <ErrorBoundary>
-            <ToastProvider>
-              {children}
-            </ToastProvider>
-          </ErrorBoundary>
-        </ThemeProvider>
+    <html lang="en" className="smooth-scroll dark">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      </head>
+      <body className="font-sans">
+        <ErrorBoundary>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

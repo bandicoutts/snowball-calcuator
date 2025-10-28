@@ -3,118 +3,143 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    /* Backgrounds */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    /* Card/Surface */
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
-    /* Popover */
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
-    /* Primary - Purple like Linear */
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Secondary - Subtle gray */
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    /* Muted - For less important text/backgrounds */
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    /* Accent - Hover states */
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
-    /* Destructive - Errors/Delete */
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    /* Border - Very subtle */
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 262 83% 58%;
-
-    /* Chart colors */
-    --chart-1: 262 83% 58%;
-    --chart-2: 282 83% 60%;
-    --chart-3: 142 71% 45%;
-    --chart-4: 38 92% 50%;
-    --chart-5: 270 51% 40%;
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    /* Backgrounds - Very dark like Linear */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-
-    /* Card/Surface */
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-
-    /* Popover */
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-
-    /* Primary - Lighter purple for dark mode */
-    --primary: 263 70% 65%;
-    --primary-foreground: 0 0% 100%;
-
-    /* Secondary */
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-
-    /* Muted */
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-
-    /* Accent */
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-
-    /* Destructive */
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    /* Border - Subtle in dark mode */
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 263 70% 50.4%;
-
-    /* Chart colors - adjusted for dark mode */
-    --chart-1: 263 70% 65%;
-    --chart-2: 285 70% 68%;
-    --chart-3: 142 71% 50%;
-    --chart-4: 38 92% 55%;
-    --chart-5: 270 60% 55%;
-  }
-}
-
-@layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: #252525;
+  }
+
+  html {
+    @apply antialiased;
+    scroll-behavior: smooth;
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    color: #FAFAFA;
+    background-color: #0A0A0A;
+    font-feature-settings: "rlig" 1, "calt" 1, "kern" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  /* Card - Elevated surface */
+  .card {
+    background-color: #151515;
+    border: 1px solid #252525;
+    border-radius: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .card-hover:hover {
+    border-color: #1A1A1A;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  /* Button - Primary */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .btn-primary {
+    background-color: #FAFAFA;
+    color: #0A0A0A;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: #E5E5E5;
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Button - Secondary */
+  .btn-secondary {
+    background-color: transparent;
+    color: #FAFAFA;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid #252525;
+    letter-spacing: 0.01em;
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    border-color: #FAFAFA;
+    background-color: #151515;
+  }
+
+  .btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Input field */
+  .input-field {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background-color: #151515;
+    border: 1px solid #252525;
+    color: #FAFAFA;
+    font-size: 0.875rem;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .input-field::placeholder {
+    color: #666666;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: #FAFAFA;
+    background-color: #151515;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background-color: #252525;
   }
 }
 
 @layer utilities {
+  /* Focus ring */
+  .focus-ring:focus-visible {
+    outline: 2px solid #FAFAFA;
+    outline-offset: 2px;
+  }
+
+  /* Text balance */
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Reduce motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
