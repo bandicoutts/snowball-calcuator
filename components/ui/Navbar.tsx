@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast'
 import { LayoutDashboard, CreditCard, BarChart3, LogOut, Menu, X, TrendingDown } from 'lucide-react'
+import { ThemeToggle } from './ThemeToggle'
 
 export default function Navbar() {
   const router = useRouter()
@@ -70,31 +71,29 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href
 
   return (
-    <nav className="border-b border-white/10 backdrop-blur-xl bg-slate-950/90">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link href="/dashboard" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <TrendingDown className="h-6 w-6 text-white" />
-              </div>
-              <span className="text-xl font-bold text-white">Snowball</span>
+          <div className="flex items-center space-x-10">
+            <Link href="/dashboard" className="flex items-center space-x-2">
+              <TrendingDown className="h-5 w-5 text-foreground" />
+              <span className="text-base font-semibold text-foreground">Snowball</span>
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex space-x-2">
+            <div className="hidden md:flex items-center space-x-1">
               {navItems.map((item) => {
                 const Icon = item.icon
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    className={`flex items-center space-x-1.5 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive(item.href)
-                        ? 'bg-white/10 text-white'
+                        ? 'text-foreground bg-secondary'
                         : item.enabled
-                        ? 'text-slate-300 hover:text-white hover:bg-white/5'
-                        : 'text-slate-600 cursor-not-allowed'
+                        ? 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                        : 'text-muted-foreground/40 cursor-not-allowed'
                     }`}
                     onClick={(e) => {
                       if (!item.enabled) {
@@ -103,10 +102,9 @@ export default function Navbar() {
                       }
                     }}
                   >
-                    <Icon className="h-4 w-4" />
                     <span>{item.name}</span>
                     {item.badge && (
-                      <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                      <span className="ml-1 bg-primary text-primary-foreground text-xs font-medium px-1.5 py-0.5 rounded">
                         {item.badge}
                       </span>
                     )}
@@ -116,31 +114,34 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Desktop Logout */}
-          <div className="hidden md:block">
+          {/* Desktop Actions */}
+          <div className="hidden md:flex items-center space-x-3">
+            <ThemeToggle />
             <button
               onClick={handleLogout}
               disabled={loggingOut}
-              className="flex items-center space-x-2 text-slate-300 hover:text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-muted-foreground hover:text-foreground px-3 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <LogOut className="h-4 w-4" />
-              <span>{loggingOut ? 'Logging out...' : 'Logout'}</span>
+              {loggingOut ? 'Logging out...' : 'Logout'}
             </button>
           </div>
 
           {/* Mobile Menu Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          <div className="flex items-center space-x-2 md:hidden">
+            <ThemeToggle />
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-white/10 bg-slate-950/95 backdrop-blur-xl">
+        <div className="md:hidden border-t border-border bg-background">
           <div className="px-4 pt-2 pb-3 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon
@@ -148,12 +149,12 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-all ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     isActive(item.href)
-                      ? 'bg-white/10 text-white'
+                      ? 'bg-accent text-accent-foreground'
                       : item.enabled
-                      ? 'text-slate-300 hover:text-white hover:bg-white/5'
-                      : 'text-slate-600 cursor-not-allowed'
+                      ? 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                      : 'text-muted-foreground/40 cursor-not-allowed'
                   }`}
                   onClick={(e) => {
                     if (!item.enabled) {
@@ -164,12 +165,12 @@ export default function Navbar() {
                     }
                   }}
                 >
-                  <div className="flex items-center space-x-3">
-                    <Icon className="h-5 w-5" />
+                  <div className="flex items-center space-x-2.5">
+                    <Icon className="h-4.5 w-4.5" />
                     <span>{item.name}</span>
                   </div>
                   {item.badge && (
-                    <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    <span className="bg-primary text-primary-foreground text-xs font-semibold px-1.5 py-0.5 rounded-md">
                       {item.badge}
                     </span>
                   )}
@@ -182,9 +183,9 @@ export default function Navbar() {
                 setMobileMenuOpen(false)
               }}
               disabled={loggingOut}
-              className="w-full flex items-center space-x-3 text-slate-300 hover:text-white hover:bg-white/5 px-4 py-3 rounded-xl text-base font-medium transition-all disabled:opacity-50"
+              className="w-full flex items-center space-x-2.5 text-muted-foreground hover:text-foreground hover:bg-accent/50 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="h-4.5 w-4.5" />
               <span>{loggingOut ? 'Logging out...' : 'Logout'}</span>
             </button>
           </div>

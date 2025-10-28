@@ -144,202 +144,190 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <Navbar />
         <div className="flex items-center justify-center h-96">
-          <div className="text-gray-600">Loading your dashboard...</div>
+          <div className="text-muted-foreground">Loading your dashboard...</div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
       <OnboardingWizard isOpen={showOnboarding} onClose={handleCloseOnboarding} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
-          <p className="text-lg text-gray-600">Welcome back! Let's crush your debt together.</p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-1.5">Dashboard</h1>
+          <p className="text-base sm:text-lg text-muted-foreground">Welcome back! Let's crush your debt together.</p>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">Total Debt</div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {formatCurrency(totalDebt)}
-                </div>
-              </div>
-              <div className="bg-red-100 rounded-full p-3">
-                <DollarSign className="h-8 w-8 text-red-600" />
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-1">Total Debt</div>
+            <div className="text-3xl font-bold text-foreground">
+              {formatCurrency(totalDebt)}
             </div>
+            {debtCount > 0 && (
+              <div className="text-sm text-muted-foreground mt-2">
+                Across {debtCount} {debtCount === 1 ? 'debt' : 'debts'}
+              </div>
+            )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">Number of Debts</div>
-                <div className="text-3xl font-bold text-gray-900">{debtCount}</div>
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-1">Active Debts</div>
+            <div className="text-3xl font-bold text-foreground">{debtCount}</div>
+            {debtCount > 0 && (
+              <div className="text-sm text-muted-foreground mt-2">
+                Highest APR: {formatPercent(highestAPR)}
               </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <CreditCard className="h-8 w-8 text-blue-600" />
-              </div>
-            </div>
+            )}
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-indigo-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">Minimum Monthly</div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {formatCurrency(totalMinimumPayment)}
-                </div>
-              </div>
-              <div className="bg-indigo-100 rounded-full p-3">
-                <TrendingDown className="h-8 w-8 text-indigo-600" />
-              </div>
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-1">Minimum Monthly</div>
+            <div className="text-3xl font-bold text-foreground">
+              {formatCurrency(totalMinimumPayment)}
             </div>
+            {currentExtraPayment > 0 && (
+              <div className="text-sm text-muted-foreground mt-2">
+                +{formatCurrency(currentExtraPayment)} extra payment
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Extra Payment Section - Prominent Position */}
+        {/* Extra Payment Section */}
         {debtCount > 0 && (
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg p-8 mb-8 text-white">
-            <div className="flex items-start mb-4">
-              <Sparkles className="h-6 w-6 mr-3 mt-1 flex-shrink-0" />
-              <div>
-                <h2 className="text-2xl font-bold mb-2">Accelerate Your Debt Payoff</h2>
-                <p className="text-green-100">
-                  Adding even a small extra payment each month can save you thousands in interest and years of debt!
+          <div className="bg-card border border-border rounded-lg p-6 mb-8">
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold text-foreground mb-1">Extra Monthly Payment</h2>
+              <p className="text-sm text-muted-foreground">
+                Add extra to your minimum payment to pay off debt faster and save on interest.
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
+              <div className="flex-1 max-w-xs">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Amount
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-muted-foreground text-sm">$</span>
+                  <input
+                    type="number"
+                    value={extraPayment}
+                    onChange={(e) => setExtraPayment(e.target.value)}
+                    className="w-full pl-8 pr-4 py-2.5 bg-background border border-input rounded-md text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring font-medium"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={handleExtraPaymentUpdate}
+                disabled={savingExtra || extraPayment === String(currentExtraPayment)}
+                className="bg-primary text-primary-foreground px-5 py-2.5 rounded-md font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              >
+                {savingExtra ? 'Saving...' : 'Update'}
+              </button>
+            </div>
+
+            {currentExtraPayment > 0 && (
+              <div className="mt-4 p-4 bg-secondary rounded-md border border-border">
+                <p className="text-sm text-foreground">
+                  Total monthly payment: <strong>{formatCurrency(totalMinimumPayment + currentExtraPayment)}</strong>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  View your complete payoff strategy in the Results tab to see how much you'll save.
                 </p>
               </div>
-            </div>
-
-            <div className="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-6">
-              <label className="block text-sm font-semibold mb-3">
-                How much extra can you pay each month?
-              </label>
-              <div className="flex items-center space-x-4">
-                <div className="flex-1 max-w-xs">
-                  <div className="relative">
-                    <span className="absolute left-4 top-3 text-white font-semibold">$</span>
-                    <input
-                      type="number"
-                      value={extraPayment}
-                      onChange={(e) => setExtraPayment(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white bg-opacity-20 border-2 border-white border-opacity-30 rounded-lg text-white placeholder-green-200 focus:outline-none focus:ring-2 focus:ring-white focus:bg-opacity-30 font-semibold text-lg"
-                      placeholder="0.00"
-                      step="0.01"
-                      min="0"
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={handleExtraPaymentUpdate}
-                  disabled={savingExtra || extraPayment === String(currentExtraPayment)}
-                  className="bg-white text-green-600 px-6 py-3 rounded-lg font-semibold hover:bg-green-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
-                >
-                  {savingExtra ? 'Saving...' : 'Update'}
-                </button>
-              </div>
-
-              {currentExtraPayment > 0 && (
-                <div className="mt-4 bg-white bg-opacity-20 rounded-lg p-4">
-                  <p className="text-sm font-medium">
-                    💰 With ${formatCurrency(currentExtraPayment).replace('$', '')} extra per month, you'll pay{' '}
-                    <strong>${formatCurrency(totalMinimumPayment + currentExtraPayment).replace('$', '')} total</strong> each month.
-                  </p>
-                  <p className="text-xs text-green-100 mt-2">
-                    View your complete payoff strategy in the Results tab to see how much you'll save!
-                  </p>
-                </div>
-              )}
-            </div>
+            )}
           </div>
         )}
 
         {/* Empty State or Debts List */}
         {debtCount === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center">
+          <div className="bg-card border border-border rounded-lg p-10 sm:p-12 text-center">
             <div className="max-w-md mx-auto">
-              <div className="bg-indigo-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-                <CreditCard className="h-10 w-10 text-indigo-600" />
+              <div className="bg-primary/10 rounded-full w-16 h-16 sm:w-20 sm:h-20 flex items-center justify-center mx-auto mb-5 sm:mb-6">
+                <CreditCard className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">Ready to Start Your Journey?</h2>
-              <p className="text-gray-600 mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-card-foreground mb-2 sm:mb-3">Ready to Start Your Journey?</h2>
+              <p className="text-muted-foreground mb-6 sm:mb-8 text-sm sm:text-base">
                 Add your first debt to create a personalized payoff strategy and see when you'll be debt-free!
               </p>
               <Link
                 href="/debts"
-                className="inline-flex items-center bg-indigo-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-lg text-lg"
+                className="inline-flex items-center bg-primary text-primary-foreground px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg text-sm sm:text-base"
               >
-                <CreditCard className="h-5 w-5 mr-2" />
+                <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                 Add Your First Debt
-                <ArrowRight className="h-5 w-5 ml-2" />
+                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 ml-2" />
               </Link>
               <button
                 onClick={() => setShowOnboarding(true)}
-                className="block mx-auto mt-4 text-indigo-600 hover:text-indigo-700 text-sm font-medium"
+                className="block mx-auto mt-4 text-primary hover:text-primary/80 text-sm font-medium transition-colors"
               >
                 Show me how it works
               </button>
             </div>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
-              <h2 className="text-xl font-bold text-gray-900">Your Debts</h2>
+          <div className="bg-card border border-border rounded-lg overflow-hidden">
+            <div className="px-5 sm:px-6 py-4 sm:py-5 border-b border-border flex justify-between items-center">
+              <h2 className="text-lg sm:text-xl font-bold text-card-foreground">Your Debts</h2>
               <Link
                 href="/debts"
-                className="text-indigo-600 hover:text-indigo-700 font-medium text-sm flex items-center"
+                className="text-primary hover:text-primary/80 font-medium text-sm flex items-center transition-colors"
               >
                 Manage
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Link>
             </div>
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="min-w-full divide-y divide-border">
+                <thead className="bg-muted/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-5 sm:px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Debt Name
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-5 sm:px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Balance
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-5 sm:px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       APR
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                    <th className="px-5 sm:px-6 py-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       Min. Payment
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-card divide-y divide-border">
                   {debts.map((debt) => (
-                    <tr key={debt.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    <tr key={debt.id} className="hover:bg-muted/50 transition-colors">
+                      <td className="px-5 sm:px-6 py-4 whitespace-nowrap text-sm font-semibold text-card-foreground">
                         {debt.name}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                      <td className="px-5 sm:px-6 py-4 whitespace-nowrap text-sm text-muted-foreground font-medium">
                         {formatCurrency(debt.balance)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-5 sm:px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium text-gray-900">{formatPercent(debt.apr)}</span>
-                          <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${getAPRBadgeColor(debt.apr)}`}>
+                          <span className="font-medium text-card-foreground">{formatPercent(debt.apr)}</span>
+                          <span className={`px-2 py-0.5 text-xs font-semibold rounded-md ${getAPRBadgeColor(debt.apr)}`}>
                             {getAPRBadgeLabel(debt.apr)}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                      <td className="px-5 sm:px-6 py-4 whitespace-nowrap text-sm text-muted-foreground font-medium">
                         {formatCurrency(debt.minimum_payment)}
                       </td>
                     </tr>
@@ -347,16 +335,16 @@ export default function DashboardPage() {
                 </tbody>
               </table>
             </div>
-            <div className="px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 flex justify-between items-center border-t border-gray-200">
+            <div className="px-5 sm:px-6 py-4 bg-muted/30 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-t border-border">
               {highestAPR >= 15 && (
-                <div className="flex items-center text-sm text-amber-700">
-                  <AlertCircle className="h-4 w-4 mr-2" />
+                <div className="flex items-center text-sm text-destructive">
+                  <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
                   <span>You have high-interest debt. Check your payoff strategy!</span>
                 </div>
               )}
               <Link
                 href="/results"
-                className="ml-auto bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md flex items-center"
+                className="sm:ml-auto bg-primary text-primary-foreground px-5 sm:px-6 py-2.5 sm:py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-md flex items-center justify-center text-sm"
               >
                 View Payoff Strategy
                 <ArrowRight className="h-4 w-4 ml-2" />
