@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useToast } from '@/components/Toast'
-import Navbar from '@/components/ui/Navbar'
+import Navbar from '@/components/Navbar'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import Tooltip from '@/components/ui/Tooltip'
 import { sanitizeInput } from '@/lib/validation'
@@ -281,31 +281,27 @@ export default function DebtsPage() {
     setTouched({ name: false, balance: false, minimum_payment: false, apr: false })
   }
 
-  const getAPRBadgeColor = (apr: number) => {
-    if (apr >= 15) return 'bg-red-100 text-red-700 border-red-200'
-    if (apr >= 8) return 'bg-amber-100 text-amber-700 border-amber-200'
-    return 'bg-green-100 text-green-700 border-green-200'
-  }
-
-  const getAPRBadgeLabel = (apr: number) => {
-    if (apr >= 15) return 'High'
-    if (apr >= 8) return 'Medium'
-    return 'Low'
+  const getAPRColor = (apr: number) => {
+    if (apr >= 15) return 'text-red-400'
+    if (apr >= 8) return 'text-yellow-400'
+    return 'text-green-400'
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center h-96">
-          <div className="text-gray-600">Loading...</div>
-        </div>
+        <main className="max-w-7xl mx-auto px-6 lg:px-12 pt-32">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-foreground-muted text-sm">Loading your debts...</div>
+          </div>
+        </main>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen">
       <Navbar />
 
       <ConfirmDialog
@@ -323,31 +319,31 @@ export default function DebtsPage() {
         loading={deletingId !== null}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 flex justify-between items-center">
+      <main className="max-w-7xl mx-auto px-6 lg:px-12 pt-32 pb-20">
+        <div className="mb-12 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-6">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Manage Debts</h1>
-            <p className="text-lg text-gray-600">Track all your debts in one place</p>
+            <h1 className="text-4xl font-medium text-foreground mb-2">Manage Debts</h1>
+            <p className="text-base text-foreground-muted">Track all your debts in one place</p>
           </div>
           <button
             onClick={() => setShowForm(true)}
-            className="flex items-center bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md"
+            className="btn-primary inline-flex items-center"
           >
-            <Plus className="h-5 w-5 mr-2" />
+            <Plus className="h-4 w-4 mr-2" />
             Add Debt
           </button>
         </div>
 
         {/* Add/Edit Debt Form */}
         {showForm && (
-          <div className="bg-white rounded-xl shadow-md p-6 mb-8 border-2 border-indigo-200">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <div className="card p-8 mb-12">
+            <h2 className="text-2xl font-medium text-foreground mb-8">
               {editingDebt ? 'Edit Debt' : 'Add New Debt'}
             </h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-8">
               {/* Debt Name */}
               <div>
-                <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                <label className="flex items-center text-sm font-medium text-foreground-muted mb-3 uppercase tracking-wide">
                   Debt Name
                   <Tooltip content="Give this debt a recognizable name, like 'Chase Credit Card' or 'Student Loan'">
                     <span className="ml-2" />
@@ -359,40 +355,38 @@ export default function DebtsPage() {
                   value={formData.name}
                   onChange={handleInputChange}
                   onBlur={() => handleBlur('name')}
-                  className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                  className={`input-field ${
                     touched.name && formErrors.name
-                      ? 'border-red-300 focus:border-red-500'
-                      : touched.name && !formErrors.name
-                      ? 'border-green-300 focus:border-green-500'
-                      : 'border-gray-300 focus:border-indigo-500'
+                      ? 'border-red-500'
+                      : ''
                   }`}
                   placeholder="e.g., Credit Card, Student Loan"
                 />
                 {touched.name && !formErrors.name && formData.name && (
-                  <div className="flex items-center mt-2 text-sm text-green-600">
-                    <Check className="h-4 w-4 mr-1" />
-                    Looks good!
+                  <div className="flex items-center mt-3 text-sm text-green-400">
+                    <Check className="h-4 w-4 mr-2" />
+                    Valid
                   </div>
                 )}
                 {touched.name && formErrors.name && (
-                  <div className="flex items-center mt-2 text-sm text-red-600">
-                    <X className="h-4 w-4 mr-1" />
+                  <div className="flex items-center mt-3 text-sm text-red-400">
+                    <X className="h-4 w-4 mr-2" />
                     {formErrors.name}
                   </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Balance */}
                 <div>
-                  <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                  <label className="flex items-center text-sm font-medium text-foreground-muted mb-3 uppercase tracking-wide">
                     Balance
                     <Tooltip content="The total amount you currently owe on this debt">
                       <span className="ml-2" />
                     </Tooltip>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-gray-500">$</span>
+                    <span className="absolute left-4 top-3 text-foreground-subtle">$</span>
                     <input
                       type="number"
                       name="balance"
@@ -401,33 +395,31 @@ export default function DebtsPage() {
                       onBlur={() => handleBlur('balance')}
                       step="0.01"
                       min="0"
-                      className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                      className={`input-field pl-10 ${
                         touched.balance && formErrors.balance
-                          ? 'border-red-300 focus:border-red-500'
-                          : touched.balance && !formErrors.balance && !formWarnings.balance
-                          ? 'border-green-300 focus:border-green-500'
+                          ? 'border-red-500'
                           : formWarnings.balance
-                          ? 'border-amber-300 focus:border-amber-500'
-                          : 'border-gray-300 focus:border-indigo-500'
+                          ? 'border-yellow-500'
+                          : ''
                       }`}
                       placeholder="5000.00"
                     />
                   </div>
                   {touched.balance && !formErrors.balance && !formWarnings.balance && formData.balance && (
-                    <div className="flex items-center mt-2 text-sm text-green-600">
-                      <Check className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-green-400">
+                      <Check className="h-4 w-4 mr-2" />
                       Valid
                     </div>
                   )}
                   {touched.balance && formErrors.balance && (
-                    <div className="flex items-center mt-2 text-sm text-red-600">
-                      <X className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-red-400">
+                      <X className="h-4 w-4 mr-2" />
                       {formErrors.balance}
                     </div>
                   )}
                   {touched.balance && formWarnings.balance && !formErrors.balance && (
-                    <div className="flex items-center mt-2 text-sm text-amber-600">
-                      <AlertTriangle className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-yellow-400">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
                       {formWarnings.balance}
                     </div>
                   )}
@@ -435,14 +427,14 @@ export default function DebtsPage() {
 
                 {/* Minimum Payment */}
                 <div>
-                  <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                  <label className="flex items-center text-sm font-medium text-foreground-muted mb-3 uppercase tracking-wide">
                     Minimum Payment
                     <Tooltip content="The minimum amount you must pay each month (check your statement)">
                       <span className="ml-2" />
                     </Tooltip>
                   </label>
                   <div className="relative">
-                    <span className="absolute left-4 top-3 text-gray-500">$</span>
+                    <span className="absolute left-4 top-3 text-foreground-subtle">$</span>
                     <input
                       type="number"
                       name="minimum_payment"
@@ -451,33 +443,31 @@ export default function DebtsPage() {
                       onBlur={() => handleBlur('minimum_payment')}
                       step="0.01"
                       min="0"
-                      className={`w-full pl-10 pr-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                      className={`input-field pl-10 ${
                         touched.minimum_payment && formErrors.minimum_payment
-                          ? 'border-red-300 focus:border-red-500'
-                          : touched.minimum_payment && !formErrors.minimum_payment && !formWarnings.minimum_payment
-                          ? 'border-green-300 focus:border-green-500'
+                          ? 'border-red-500'
                           : formWarnings.minimum_payment
-                          ? 'border-amber-300 focus:border-amber-500'
-                          : 'border-gray-300 focus:border-indigo-500'
+                          ? 'border-yellow-500'
+                          : ''
                       }`}
                       placeholder="100.00"
                     />
                   </div>
                   {touched.minimum_payment && !formErrors.minimum_payment && !formWarnings.minimum_payment && formData.minimum_payment && (
-                    <div className="flex items-center mt-2 text-sm text-green-600">
-                      <Check className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-green-400">
+                      <Check className="h-4 w-4 mr-2" />
                       Valid
                     </div>
                   )}
                   {touched.minimum_payment && formErrors.minimum_payment && (
-                    <div className="flex items-center mt-2 text-sm text-red-600">
-                      <X className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-red-400">
+                      <X className="h-4 w-4 mr-2" />
                       {formErrors.minimum_payment}
                     </div>
                   )}
                   {touched.minimum_payment && formWarnings.minimum_payment && !formErrors.minimum_payment && (
-                    <div className="flex items-center mt-2 text-sm text-amber-600">
-                      <AlertTriangle className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-yellow-400">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
                       {formWarnings.minimum_payment}
                     </div>
                   )}
@@ -485,7 +475,7 @@ export default function DebtsPage() {
 
                 {/* APR */}
                 <div>
-                  <label className="flex items-center text-sm font-semibold text-gray-700 mb-2">
+                  <label className="flex items-center text-sm font-medium text-foreground-muted mb-3 uppercase tracking-wide">
                     APR (%)
                     <Tooltip content="Annual Percentage Rate - the yearly interest rate on this debt. Find this on your statement.">
                       <span className="ml-2" />
@@ -500,49 +490,47 @@ export default function DebtsPage() {
                     step="0.01"
                     min="0"
                     max="100"
-                    className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition-colors ${
+                    className={`input-field ${
                       touched.apr && formErrors.apr
-                        ? 'border-red-300 focus:border-red-500'
-                        : touched.apr && !formErrors.apr && !formWarnings.apr
-                        ? 'border-green-300 focus:border-green-500'
+                        ? 'border-red-500'
                         : formWarnings.apr
-                        ? 'border-amber-300 focus:border-amber-500'
-                        : 'border-gray-300 focus:border-indigo-500'
+                        ? 'border-yellow-500'
+                        : ''
                     }`}
                     placeholder="18.99"
                   />
                   {touched.apr && !formErrors.apr && !formWarnings.apr && formData.apr && (
-                    <div className="flex items-center mt-2 text-sm text-green-600">
-                      <Check className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-green-400">
+                      <Check className="h-4 w-4 mr-2" />
                       Valid
                     </div>
                   )}
                   {touched.apr && formErrors.apr && (
-                    <div className="flex items-center mt-2 text-sm text-red-600">
-                      <X className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-red-400">
+                      <X className="h-4 w-4 mr-2" />
                       {formErrors.apr}
                     </div>
                   )}
                   {touched.apr && formWarnings.apr && !formErrors.apr && (
-                    <div className="flex items-center mt-2 text-sm text-amber-600">
-                      <AlertTriangle className="h-4 w-4 mr-1" />
+                    <div className="flex items-center mt-3 text-sm text-yellow-400">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
                       {formWarnings.apr}
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="flex space-x-4 pt-4">
+              <div className="flex space-x-4 pt-6">
                 <button
                   type="submit"
-                  className="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md"
+                  className="btn-primary"
                 >
                   {editingDebt ? 'Update Debt' : 'Add Debt'}
                 </button>
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="bg-gray-200 text-gray-700 px-8 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
+                  className="btn-secondary"
                 >
                   Cancel
                 </button>
@@ -553,75 +541,74 @@ export default function DebtsPage() {
 
         {/* Debts List */}
         {debts.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-md p-12 text-center">
-            <div className="bg-indigo-100 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6">
-              <CreditCard className="h-10 w-10 text-indigo-600" />
+          <div className="card p-16 text-center">
+            <div className="w-16 h-16 rounded-full bg-background flex items-center justify-center mx-auto mb-6 border border-border">
+              <CreditCard className="h-8 w-8 text-foreground" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">No Debts Added Yet</h2>
-            <p className="text-gray-600 mb-6">
-              Click "Add Debt" to get started with your payoff plan!
+            <h2 className="text-2xl font-medium text-foreground mb-3">No Debts Added Yet</h2>
+            <p className="text-foreground-muted">
+              Click "Add Debt" to get started with your payoff plan
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="card overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gradient-to-r from-gray-50 to-blue-50">
+              <table className="min-w-full">
+                <thead className="border-b border-border">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Debt Name
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Balance
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Min. Payment
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       APR
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                   {debts.map((debt) => (
-                    <tr key={debt.id} className="hover:bg-blue-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
+                    <tr key={debt.id} className="border-b border-border hover:bg-background-elevated transition-colors">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                         {debt.name}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                         {formatCurrency(debt.balance)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                         {formatCurrency(debt.minimum_payment)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-gray-900">{formatPercent(debt.apr)}</span>
-                          <span className={`px-2 py-1 text-xs font-bold rounded-full border ${getAPRBadgeColor(debt.apr)}`}>
-                            {getAPRBadgeLabel(debt.apr)}
-                          </span>
-                        </div>
+                      <td className="px-8 py-4 whitespace-nowrap text-sm">
+                        <span className={`font-medium ${getAPRColor(debt.apr)}`}>
+                          {formatPercent(debt.apr)}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
-                        <button
-                          onClick={() => handleEdit(debt)}
-                          disabled={deletingId === debt.id}
-                          className="inline-flex items-center text-indigo-600 hover:text-indigo-900 disabled:opacity-50 font-semibold"
-                        >
-                          <Edit className="h-4 w-4 mr-1" />
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => confirmDelete(debt.id, debt.name)}
-                          disabled={deletingId !== null}
-                          className="inline-flex items-center text-red-600 hover:text-red-900 disabled:opacity-50 font-semibold"
-                        >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          {deletingId === debt.id ? 'Deleting...' : 'Delete'}
-                        </button>
+                      <td className="px-8 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-4">
+                          <button
+                            onClick={() => handleEdit(debt)}
+                            disabled={deletingId === debt.id}
+                            className="inline-flex items-center text-foreground hover:text-foreground-muted disabled:opacity-40 transition-colors"
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => confirmDelete(debt.id, debt.name)}
+                            disabled={deletingId !== null}
+                            className="inline-flex items-center text-red-400 hover:text-red-300 disabled:opacity-40 transition-colors"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            {deletingId === debt.id ? 'Deleting...' : 'Delete'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
-import Navbar from '@/components/ui/Navbar'
+import Navbar from '@/components/Navbar'
 import DebtMethodInfo from '@/components/DebtMethodInfo'
 import DebtPayoffChart from '@/components/charts/DebtPayoffChart'
 import TotalDebtChart from '@/components/charts/TotalDebtChart'
@@ -83,28 +83,30 @@ export default function ResultsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="flex items-center justify-center h-96">
-          <div className="text-gray-600">Calculating your payoff strategy...</div>
-        </div>
+        <main className="max-w-7xl mx-auto px-6 lg:px-12 pt-32">
+          <div className="flex items-center justify-center h-96">
+            <div className="text-foreground-muted text-sm">Calculating your payoff strategy...</div>
+          </div>
+        </main>
       </div>
     )
   }
 
   if (!results || results.debts.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">No debts found</h2>
-            <p className="text-gray-600 mb-6">
-              Add some debts first to see your payoff strategy.
+        <main className="max-w-7xl mx-auto px-6 lg:px-12 pt-32">
+          <div className="card p-12 text-center">
+            <h2 className="text-2xl font-medium text-foreground mb-3">No debts found</h2>
+            <p className="text-foreground-muted mb-8">
+              Add some debts first to see your payoff strategy
             </p>
             <Link
               href="/debts"
-              className="inline-block bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+              className="btn-primary inline-flex items-center"
             >
               Add Debts
             </Link>
@@ -119,28 +121,28 @@ export default function ResultsPage() {
   const timeSavings = results.snowball.monthsToPayoff - results.avalanche.monthsToPayoff
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen">
       <Navbar />
 
       <DebtMethodInfo isOpen={showMethodInfo} onClose={() => setShowMethodInfo(false)} />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Payoff Strategy Results</h1>
-          <p className="text-lg text-gray-600">
-            Compare snowball and avalanche methods to find the best strategy for you.
+      <main className="max-w-7xl mx-auto px-6 lg:px-12 pt-32 pb-20">
+        <div className="mb-12">
+          <h1 className="text-4xl font-medium text-foreground mb-2">Payoff Strategy Results</h1>
+          <p className="text-base text-foreground-muted">
+            Compare snowball and avalanche methods to find the best strategy for you
           </p>
         </div>
 
         {/* Method Toggle */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-          <div className="bg-white rounded-xl shadow-md p-2 inline-flex">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-12">
+          <div className="card p-1.5 inline-flex gap-1.5">
             <button
               onClick={() => handleMethodToggle('snowball')}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+              className={`flex items-center space-x-2 px-6 py-2.5 rounded-md font-medium transition-all ${
                 activeMethod === 'snowball'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-foreground text-background'
+                  : 'text-foreground-muted hover:text-foreground hover:bg-background-elevated'
               }`}
             >
               <TrendingDown className="h-4 w-4" />
@@ -148,10 +150,10 @@ export default function ResultsPage() {
             </button>
             <button
               onClick={() => handleMethodToggle('avalanche')}
-              className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+              className={`flex items-center space-x-2 px-6 py-2.5 rounded-md font-medium transition-all ${
                 activeMethod === 'avalanche'
-                  ? 'bg-indigo-600 text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-foreground text-background'
+                  : 'text-foreground-muted hover:text-foreground hover:bg-background-elevated'
               }`}
             >
               <Calculator className="h-4 w-4" />
@@ -160,138 +162,141 @@ export default function ResultsPage() {
           </div>
           <button
             onClick={() => setShowMethodInfo(true)}
-            className="flex items-center text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+            className="flex items-center text-foreground hover:text-foreground-muted font-medium text-sm transition-colors"
           >
-            <Info className="h-4 w-4 mr-1" />
+            <Info className="h-4 w-4 mr-2" />
             Learn about these methods
           </button>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">Months to Payoff</div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {activeStrategy.monthsToPayoff}
-                </div>
-                <div className="text-sm text-gray-500 mt-1">
-                  ({Math.floor(activeStrategy.monthsToPayoff / 12)} years{' '}
-                  {activeStrategy.monthsToPayoff % 12} months)
-                </div>
-              </div>
-              <div className="bg-blue-100 rounded-full p-3">
-                <Clock className="h-8 w-8 text-blue-600" />
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-medium text-foreground-muted uppercase tracking-wide">Months to Payoff</div>
+              <Clock className="h-5 w-5 text-foreground-subtle" />
             </div>
+            <div className="text-3xl font-medium text-foreground mb-1">
+              {activeStrategy.monthsToPayoff}
+            </div>
+            <p className="text-sm text-foreground-muted">
+              {Math.floor(activeStrategy.monthsToPayoff / 12)} years{' '}
+              {activeStrategy.monthsToPayoff % 12} months
+            </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">Total Interest Paid</div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {formatCurrency(activeStrategy.totalInterestPaid)}
-                </div>
-              </div>
-              <div className="bg-red-100 rounded-full p-3">
-                <DollarSign className="h-8 w-8 text-red-600" />
-              </div>
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-medium text-foreground-muted uppercase tracking-wide">Total Interest Paid</div>
+              <DollarSign className="h-5 w-5 text-foreground-subtle" />
             </div>
+            <div className="text-3xl font-medium text-foreground mb-1">
+              {formatCurrency(activeStrategy.totalInterestPaid)}
+            </div>
+            <p className="text-sm text-foreground-muted">
+              Over the life of all debts
+            </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm font-medium text-gray-600 mb-1">Extra Monthly Payment</div>
-                <div className="text-3xl font-bold text-gray-900">
-                  {formatCurrency(results.extraPayment)}
-                </div>
-              </div>
-              <div className="bg-green-100 rounded-full p-3">
-                <DollarSign className="h-8 w-8 text-green-600" />
-              </div>
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-sm font-medium text-foreground-muted uppercase tracking-wide">Extra Monthly Payment</div>
+              <DollarSign className="h-5 w-5 text-foreground-subtle" />
             </div>
+            <div className="text-3xl font-medium text-foreground mb-1">
+              {formatCurrency(results.extraPayment)}
+            </div>
+            <p className="text-sm text-foreground-muted">
+              {results.extraPayment > 0 ? 'Accelerating payoff' : 'No extra payment set'}
+            </p>
           </div>
         </div>
 
         {/* Comparison Card */}
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg shadow p-6 mb-8 border-2 border-indigo-200">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Method Comparison</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="card p-8 mb-12">
+          <h2 className="text-2xl font-medium text-foreground mb-8">Method Comparison</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Snowball Method</h3>
-              <p className="text-sm text-gray-600 mb-3">Pays smallest balance first for quick wins</p>
-              <ul className="space-y-1 text-sm">
-                <li>
-                  <span className="font-medium">Payoff Time:</span> {results.snowball.monthsToPayoff} months
+              <div className="flex items-center mb-3">
+                <TrendingDown className="h-5 w-5 text-foreground mr-3" />
+                <h3 className="font-medium text-foreground">Snowball Method</h3>
+              </div>
+              <p className="text-sm text-foreground-muted mb-4">Pays smallest balance first for quick wins</p>
+              <ul className="space-y-2 text-sm">
+                <li className="text-foreground-muted">
+                  <span className="font-medium text-foreground">Payoff Time:</span> {results.snowball.monthsToPayoff} months
                 </li>
-                <li>
-                  <span className="font-medium">Total Interest:</span> {formatCurrency(results.snowball.totalInterestPaid)}
+                <li className="text-foreground-muted">
+                  <span className="font-medium text-foreground">Total Interest:</span> {formatCurrency(results.snowball.totalInterestPaid)}
                 </li>
               </ul>
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Avalanche Method</h3>
-              <p className="text-sm text-gray-600 mb-3">Pays highest interest first to save money</p>
-              <ul className="space-y-1 text-sm">
-                <li>
-                  <span className="font-medium">Payoff Time:</span> {results.avalanche.monthsToPayoff} months
+              <div className="flex items-center mb-3">
+                <Calculator className="h-5 w-5 text-foreground mr-3" />
+                <h3 className="font-medium text-foreground">Avalanche Method</h3>
+              </div>
+              <p className="text-sm text-foreground-muted mb-4">Pays highest interest first to save money</p>
+              <ul className="space-y-2 text-sm">
+                <li className="text-foreground-muted">
+                  <span className="font-medium text-foreground">Payoff Time:</span> {results.avalanche.monthsToPayoff} months
                 </li>
-                <li>
-                  <span className="font-medium">Total Interest:</span> {formatCurrency(results.avalanche.totalInterestPaid)}
+                <li className="text-foreground-muted">
+                  <span className="font-medium text-foreground">Total Interest:</span> {formatCurrency(results.avalanche.totalInterestPaid)}
                 </li>
               </ul>
             </div>
           </div>
 
           {interestSavings !== 0 && (
-            <div className="mt-4 pt-4 border-t border-indigo-200">
-              <p className="text-sm font-medium text-gray-900">
-                {interestSavings > 0 ? (
-                  <>
-                    💰 The avalanche method saves you {formatCurrency(Math.abs(interestSavings))} in interest
-                    {timeSavings > 0 && ` and ${timeSavings} months`}!
-                  </>
-                ) : (
-                  <>
-                    The snowball method costs {formatCurrency(Math.abs(interestSavings))} more but may provide better motivation.
-                  </>
-                )}
-              </p>
+            <div className="mt-6 pt-6 border-t border-border">
+              <div className="flex items-start">
+                <DollarSign className="h-5 w-5 text-green-400 mr-3 flex-shrink-0 mt-0.5" />
+                <p className="text-sm font-medium text-foreground">
+                  {interestSavings > 0 ? (
+                    <>
+                      The avalanche method saves you {formatCurrency(Math.abs(interestSavings))} in interest
+                      {timeSavings > 0 && ` and ${timeSavings} months`}
+                    </>
+                  ) : (
+                    <>
+                      The snowball method costs {formatCurrency(Math.abs(interestSavings))} more but may provide better motivation
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Recommended Payments */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+        <div className="card p-8 mb-12">
+          <h2 className="text-2xl font-medium text-foreground mb-8">
             Recommended Monthly Payments ({activeMethod === 'snowball' ? 'Snowball' : 'Avalanche'})
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {activeStrategy.debtPayments.map((payment) => (
-              <div key={payment.debtId} className="border border-gray-200 rounded-lg p-4">
-                <div className="font-medium text-gray-900">{payment.debtName}</div>
-                <div className="text-2xl font-bold text-indigo-600 mt-2">
+              <div key={payment.debtId} className="border border-border rounded-lg p-6">
+                <div className="font-medium text-foreground mb-3">{payment.debtName}</div>
+                <div className="text-3xl font-medium text-foreground mb-1">
                   {formatCurrency(payment.monthlyPayment)}
                 </div>
-                <div className="text-sm text-gray-500">per month</div>
+                <div className="text-sm text-foreground-muted">per month</div>
               </div>
             ))}
           </div>
         </div>
 
         {/* Total Debt Over Time Chart */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Total Debt Over Time</h2>
+        <div className="card p-8 mb-12">
+          <h2 className="text-2xl font-medium text-foreground mb-8">Total Debt Over Time</h2>
           <TotalDebtChart monthlyPayments={activeStrategy.monthlyPayments} />
         </div>
 
         {/* Individual Debt Payoff Chart */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Individual Debt Payoff</h2>
+        <div className="card p-8 mb-12">
+          <h2 className="text-2xl font-medium text-foreground mb-8">Individual Debt Payoff</h2>
           <DebtPayoffChart
             monthlyPayments={activeStrategy.monthlyPayments}
             debts={results.debts.map((d) => ({ id: d.id, name: d.name }))}
@@ -299,12 +304,12 @@ export default function ResultsPage() {
         </div>
 
         {/* Payment Schedule Table */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-xl font-semibold text-gray-900">Monthly Payment Schedule</h2>
+        <div className="card overflow-hidden">
+          <div className="px-8 py-6 border-b border-border flex justify-between items-center">
+            <h2 className="text-2xl font-medium text-foreground">Monthly Payment Schedule</h2>
             <button
               onClick={handleTogglePaymentTable}
-              className="text-indigo-600 hover:text-indigo-700 font-medium text-sm"
+              className="text-foreground hover:text-foreground-muted font-medium text-sm transition-colors"
             >
               {showPaymentTable ? 'Hide Table' : 'Show Table'}
             </button>
@@ -312,48 +317,53 @@ export default function ResultsPage() {
 
           {showPaymentTable && (
             <div className="overflow-x-auto max-h-96 overflow-y-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50 sticky top-0">
+              <table className="min-w-full">
+                <thead className="border-b border-border bg-background sticky top-0">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Month
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Debt
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Payment
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Principal
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Interest
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                       Remaining
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                   {activeStrategy.monthlyPayments.map((payment, index) => (
-                    <tr key={index} className={payment.remainingBalance === 0 ? 'bg-green-50' : ''}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <tr
+                      key={index}
+                      className={`border-b border-border hover:bg-background-elevated transition-colors ${
+                        payment.remainingBalance === 0 ? 'bg-background-elevated' : ''
+                      }`}
+                    >
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted">
                         {payment.month}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                         {payment.debtName}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                         {formatCurrency(payment.payment)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                         {formatCurrency(payment.principal)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                         {formatCurrency(payment.interest)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                         {formatCurrency(payment.remainingBalance)}
                       </td>
                     </tr>

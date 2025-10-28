@@ -50,7 +50,6 @@ export default function DashboardPage() {
       return;
     }
 
-    // Load debts
     const { data: debtsData } = await supabase
       .from('debts')
       .select('*')
@@ -73,7 +72,6 @@ export default function DashboardPage() {
       }
     }
 
-    // Load settings
     const { data: settingsData } = await supabase
       .from('user_settings')
       .select('*')
@@ -119,7 +117,7 @@ export default function DashboardPage() {
     }
 
     setCurrentExtraPayment(newAmount);
-    showSuccess('Extra payment updated successfully!');
+    showSuccess('Extra payment updated successfully');
     setSavingExtra(false);
   };
 
@@ -133,14 +131,13 @@ export default function DashboardPage() {
   const debtCount = debts.length;
   const highestAPR = debts.length > 0 ? Math.max(...debts.map(d => d.apr)) : 0;
 
-  // Calculate estimated debt-free date (simplified)
   const estimatedMonths = totalDebt > 0 && (totalMinimumPayment + currentExtraPayment) > 0
     ? Math.ceil(totalDebt / (totalMinimumPayment + currentExtraPayment))
     : 0;
   const debtFreeDate = new Date();
   debtFreeDate.setMonth(debtFreeDate.getMonth() + estimatedMonths);
 
-  const getAPRBadgeColor = (apr: number) => {
+  const getAPRColor = (apr: number) => {
     if (apr >= 15) return 'text-red-400';
     if (apr >= 8) return 'text-yellow-400';
     return 'text-green-400';
@@ -150,9 +147,9 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <Container className="pt-24">
+        <Container className="pt-32">
           <div className="flex items-center justify-center h-96">
-            <div className="text-foreground-muted">Loading your dashboard...</div>
+            <div className="text-foreground-muted text-sm">Loading your dashboard...</div>
           </div>
         </Container>
       </div>
@@ -164,33 +161,32 @@ export default function DashboardPage() {
       <Navbar />
       <OnboardingWizard isOpen={showOnboarding} onClose={handleCloseOnboarding} />
 
-      <Container className="pt-28 pb-20">
+      <Container className="pt-32 pb-20">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-semibold text-foreground mb-2">Dashboard</h1>
-          <p className="text-lg text-foreground-muted">Your path to financial freedom</p>
+          <h1 className="text-4xl font-medium text-foreground mb-2">Dashboard</h1>
+          <p className="text-base text-foreground-muted">Your path to financial freedom</p>
         </div>
 
         {debtCount === 0 ? (
           /* Empty State */
-          <div className="glass p-12 md:p-16 text-center">
-            <div className="w-20 h-20 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-6">
-              <CreditCard className="h-10 w-10 text-accent" />
+          <div className="card p-16 text-center max-w-2xl mx-auto">
+            <div className="w-16 h-16 rounded-full bg-background flex items-center justify-center mx-auto mb-6 border border-border">
+              <CreditCard className="h-8 w-8 text-foreground" />
             </div>
-            <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">
+            <h2 className="text-2xl font-medium text-foreground mb-3">
               Ready to start your journey?
             </h2>
             <p className="text-foreground-muted mb-8 max-w-md mx-auto">
               Add your first debt to create a personalized payoff strategy and see when you'll be debt-free.
             </p>
-            <Link href="/debts" className="btn-primary">
-              <CreditCard className="h-4 w-4 mr-2" />
+            <Link href="/debts" className="btn-primary inline-flex items-center">
               Add your first debt
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
             <button
               onClick={() => setShowOnboarding(true)}
-              className="block mx-auto mt-4 text-sm text-foreground-muted hover:text-foreground transition-colors"
+              className="block mx-auto mt-6 text-sm text-foreground-muted hover:text-foreground transition-colors"
             >
               Show me how it works
             </button>
@@ -199,67 +195,63 @@ export default function DashboardPage() {
           <>
             {/* Metrics Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              {/* Total Debt */}
-              <div className="glass p-6 md:p-7 hover:bg-white/[0.08] transition-all duration-300">
+              <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm font-medium text-foreground-muted">Total Debt</div>
-                  <DollarSign className="h-5 w-5 text-accent" />
+                  <div className="text-sm font-medium text-foreground-muted uppercase tracking-wide">Total Debt</div>
+                  <DollarSign className="h-5 w-5 text-foreground-subtle" />
                 </div>
-                <div className="text-2xl md:text-3xl font-semibold text-foreground">
+                <div className="text-3xl font-medium text-foreground mb-1">
                   {formatCurrency(totalDebt)}
                 </div>
-                <p className="text-sm text-foreground-muted mt-2">
+                <p className="text-sm text-foreground-muted">
                   Across {debtCount} {debtCount === 1 ? 'debt' : 'debts'}
                 </p>
-              </div>
+              </Card>
 
-              {/* Debt-Free Date */}
-              <div className="glass p-6 md:p-7 hover:bg-white/[0.08] transition-all duration-300">
+              <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm font-medium text-foreground-muted">Debt-Free Date</div>
-                  <Calendar className="h-5 w-5 text-accent" />
+                  <div className="text-sm font-medium text-foreground-muted uppercase tracking-wide">Debt-Free Date</div>
+                  <Calendar className="h-5 w-5 text-foreground-subtle" />
                 </div>
-                <div className="text-2xl md:text-3xl font-semibold text-foreground">
+                <div className="text-3xl font-medium text-foreground mb-1">
                   {estimatedMonths > 0 ? debtFreeDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A'}
                 </div>
-                <p className="text-sm text-foreground-muted mt-2">
+                <p className="text-sm text-foreground-muted">
                   {estimatedMonths > 0 ? `${estimatedMonths} months away` : 'Add payment info'}
                 </p>
-              </div>
+              </Card>
 
-              {/* Next Payment */}
-              <div className="glass p-6 md:p-7 hover:bg-white/[0.08] transition-all duration-300">
+              <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm font-medium text-foreground-muted">Next Payment</div>
-                  <TrendingDown className="h-5 w-5 text-accent" />
+                  <div className="text-sm font-medium text-foreground-muted uppercase tracking-wide">Next Payment</div>
+                  <TrendingDown className="h-5 w-5 text-foreground-subtle" />
                 </div>
-                <div className="text-2xl md:text-3xl font-semibold text-foreground">
+                <div className="text-3xl font-medium text-foreground mb-1">
                   {formatCurrency(totalMinimumPayment + currentExtraPayment)}
                 </div>
-                <p className="text-sm text-foreground-muted mt-2">
+                <p className="text-sm text-foreground-muted">
                   Due {new Date(new Date().setDate(1)).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </p>
-              </div>
+              </Card>
 
-              {/* Minimum Monthly */}
-              <div className="glass p-6 md:p-7 hover:bg-white/[0.08] transition-all duration-300">
+              <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm font-medium text-foreground-muted">Minimum Monthly</div>
-                  <CreditCard className="h-5 w-5 text-accent" />
+                  <div className="text-sm font-medium text-foreground-muted uppercase tracking-wide">Minimum Monthly</div>
+                  <CreditCard className="h-5 w-5 text-foreground-subtle" />
                 </div>
-                <div className="text-2xl md:text-3xl font-semibold text-foreground">
+                <div className="text-3xl font-medium text-foreground mb-1">
                   {formatCurrency(totalMinimumPayment)}
                 </div>
-                <p className="text-sm text-foreground-muted mt-2">
+                <p className="text-sm text-foreground-muted">
                   {currentExtraPayment > 0 ? `+${formatCurrency(currentExtraPayment)} extra` : 'No extra payment'}
                 </p>
-              </div>
+              </Card>
             </div>
 
             {/* Extra Payment Card */}
-            <div className="glass p-6 md:p-8 mb-12">
+            <div className="card p-8 mb-12">
               <div className="mb-6">
-                <h2 className="text-xl font-semibold text-foreground mb-2">
+                <h2 className="text-xl font-medium text-foreground mb-2">
                   Extra Monthly Payment
                 </h2>
                 <p className="text-sm text-foreground-muted">
@@ -287,7 +279,7 @@ export default function DashboardPage() {
               </div>
 
               {currentExtraPayment > 0 && (
-                <div className="mt-6 p-4 bg-white/[0.04] rounded-lg border border-white/10">
+                <div className="mt-6 p-4 bg-background rounded-lg border border-border">
                   <p className="text-sm text-foreground">
                     Total monthly payment: <strong>{formatCurrency(totalMinimumPayment + currentExtraPayment)}</strong>
                   </p>
@@ -299,56 +291,54 @@ export default function DashboardPage() {
             </div>
 
             {/* Debts Table */}
-            <div className="glass overflow-hidden">
-              <div className="px-6 py-5 border-b border-white/10 flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-foreground">Your Debts</h2>
+            <div className="card overflow-hidden">
+              <div className="px-8 py-6 border-b border-border flex justify-between items-center">
+                <h2 className="text-xl font-medium text-foreground">Your Debts</h2>
                 <Link
                   href="/debts"
-                  className="text-sm font-medium text-accent hover:text-accent-2 transition-colors flex items-center"
+                  className="text-sm font-medium text-foreground hover:text-foreground-muted transition-colors flex items-center"
                 >
                   Manage
-                  <ArrowRight className="h-4 w-4 ml-1" />
+                  <ArrowRight className="h-4 w-4 ml-2" />
                 </Link>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="min-w-full">
-                  <thead className="border-b border-white/10">
+                  <thead className="border-b border-border">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-foreground-muted uppercase tracking-wider">
+                      <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                         Debt Name
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-foreground-muted uppercase tracking-wider">
+                      <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                         Balance
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-foreground-muted uppercase tracking-wider">
+                      <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                         APR
                       </th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-foreground-muted uppercase tracking-wider">
+                      <th className="px-8 py-4 text-left text-xs font-medium text-foreground-muted uppercase tracking-wider">
                         Min. Payment
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {debts.map((debt, index) => (
+                    {debts.map((debt) => (
                       <tr
                         key={debt.id}
-                        className={`border-b border-white/[0.05] hover:bg-white/[0.04] transition-colors ${
-                          index % 2 === 1 ? 'bg-white/[0.02]' : ''
-                        }`}
+                        className="border-b border-border hover:bg-background-elevated transition-colors"
                       >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-foreground">
+                        <td className="px-8 py-4 whitespace-nowrap text-sm font-medium text-foreground">
                           {debt.name}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
+                        <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                           {formatCurrency(debt.balance)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`font-medium ${getAPRBadgeColor(debt.apr)}`}>
+                        <td className="px-8 py-4 whitespace-nowrap text-sm">
+                          <span className={`font-medium ${getAPRColor(debt.apr)}`}>
                             {formatPercent(debt.apr)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
+                        <td className="px-8 py-4 whitespace-nowrap text-sm text-foreground-muted font-medium">
                           {formatCurrency(debt.minimum_payment)}
                         </td>
                       </tr>
@@ -357,16 +347,16 @@ export default function DashboardPage() {
                 </table>
               </div>
 
-              <div className="px-6 py-4 bg-white/[0.02] border-t border-white/10 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div className="px-8 py-6 bg-background border-t border-border flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 {highestAPR >= 15 && (
                   <div className="flex items-center text-sm text-yellow-400">
                     <AlertCircle className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span>You have high-interest debt. Check your payoff strategy!</span>
+                    <span>You have high-interest debt. Check your payoff strategy.</span>
                   </div>
                 )}
                 <Link
                   href="/results"
-                  className="btn-primary text-sm sm:ml-auto"
+                  className="btn-primary text-sm sm:ml-auto inline-flex items-center"
                 >
                   View Payoff Strategy
                   <ArrowRight className="h-4 w-4 ml-2" />
